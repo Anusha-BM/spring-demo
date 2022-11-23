@@ -13,6 +13,6 @@ public class DemoController {
 
 	@GetMapping
 	public String  getApi() {
-		return "Hi this is Spring boot app deployed on Azure App service";
+		return "Hi Azure";
 	}
 }
