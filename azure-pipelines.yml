@@ -1,0 +1,31 @@
+trigger:
+- none
+
+pool:
+  vmImage: windows-latest
+  
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: MavenPackageAndPublishArtifacts
+    displayName: Maven Package and Publish Artifacts
+    
+    steps:
+     - task: Maven@3
+       displayName: 'Maven Package'
+       inputs:
+        mavenPomFile: 'pom.xml'
+        goals: 'package'
+
+     - task: CopyFiles@2
+       displayName: 'Copy Files to artifact staging directory'
+       inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)'
+        Contents: '**/target/*.jar'
+        TargetFolder: $(Build.ArtifactStagingDirectory)
+       
+     - task: PublishPipelineArtifact@1
+       displayName: 'Publish pipeline artifacts'
+       inputs:
+        targetPath: $(Build.ArtifactStagingDirectory)
