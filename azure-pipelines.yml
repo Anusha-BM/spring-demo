@@ -1,3 +1,8 @@
+# Maven package Java project Web App to Linux on Azure
+# Build your Java project and deploy it to Azure as a Linux web app
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
 trigger:
 - none
 
@@ -29,3 +34,28 @@ stages:
        displayName: 'Publish pipeline artifacts'
        inputs:
         targetPath: $(Build.ArtifactStagingDirectory)
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+   - job:  DeployApp
+     displayName: Deploy Windows Web App
+     
+     steps:
+           - task: DownloadPipelineArtifact@2
+             displayName: 'Download Pipeline Artifact'
+             inputs:
+              buildType: 'current'
+              targetPath: '$(Pipeline.Workspace)'
+              
+           - task: AzureRmWebAppDeployment@4
+             displayName: 'Azure Web App Deploy: spring-mvc'
+             inputs:
+              ConnectionType: 'AzureRM'
+              azureSubscription: 'springazure'
+              appType: 'webApp'
+              WebAppName: 'spring-mvc-demo'
+              ResourceGroupName: 'spring-mvc-demo_group'
+              packageForLinux: '$(Pipeline.Workspace)/**/target/emp-0.0.1-SNAPSHOT.jar'
